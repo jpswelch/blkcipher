@@ -5,6 +5,3 @@
 [build.environment]
   JEKYLL_ENV = "production"
   RUBY_VERSION = "3.3.3"
-
-[[plugins]]
-  package = "@netlify/plugin-jekyll"
