@@ -7,3 +7,5 @@ __backup*
 _backup_lanyon
 .DS_Store
 .jektex-cache
+# Local Netlify folder
+.netlify
