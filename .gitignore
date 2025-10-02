@@ -1,0 +1,9 @@
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
+__backup*
+_backup_lanyon
+.DS_Store
+.jektex-cache
