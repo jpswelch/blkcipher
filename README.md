@@ -13,7 +13,7 @@ bundle exec jekyll serve
 or
 
 ```bash
-jekyll serve
+`jekyll serve`
 ```
 
 
