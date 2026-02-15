@@ -10,12 +10,34 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const code = event.queryStringParameters?.code;
-  if (!code) {
+  const params = event.queryStringParameters || {};
+  const code = params.code;
+  const error = params.error;
+  const errorDesc = params.error_description;
+
+  if (error) {
     return {
       statusCode: 400,
       headers: { "Content-Type": "text/html; charset=utf-8" },
-      body: "<p>Missing <code>code</code> in callback.</p>",
+      body: [
+        "<p><strong>WHOOP authorization did not complete.</strong></p>",
+        `<p>Error: ${error}${errorDesc ? ` — ${decodeURIComponent(errorDesc)}` : ""}</p>`,
+        "<p>You can try again by starting from your app’s “Connect to WHOOP” link.</p>",
+      ].join("\n"),
+    };
+  }
+
+  if (!code) {
+    const hasParams = Object.keys(params).length > 0;
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+      body: [
+        "<p><strong>Missing code in callback.</strong></p>",
+        "<p>This URL is for WHOOP to redirect to after you authorize. Do not open it directly.</p>",
+        "<p>Start by clicking your app’s “Connect to WHOOP” (or similar) link, which sends you to WHOOP to sign in; after you approve, WHOOP will redirect here with a <code>code</code> parameter.</p>",
+        hasParams ? `<p><small>Received query params: ${Object.keys(params).join(", ")}</small></p>` : "",
+      ].join("\n"),
     };
   }
 
