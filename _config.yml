@@ -16,6 +16,7 @@ theme: no-style-please # using local theme from themes/no-style-please
 
 exclude:
   - themes/
+  - .jektex-cache
 
 theme_config:
   appearance: "auto" # can be "light", "dark" or "auto"
