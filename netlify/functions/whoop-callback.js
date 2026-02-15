@@ -2,7 +2,19 @@
  * WHOOP OAuth callback – runs as a Netlify serverless function.
  * Configure WHOOP redirect_uri as: https://YOUR-DOMAIN.com/auth/whoop/callback
  *
- * Required env vars in Netlify: WHOOP_CLIENT_ID, WHOOP_CLIENT_SECRET
+ * Required env vars: WHOOP_CLIENT_ID, WHOOP_CLIENT_SECRET
+ *
+ * Optional: WHOOP_SUCCESS_REDIRECT_URL – after a successful token exchange, redirect
+ * the user here with the token data in the URL hash (fragment), e.g.:
+ *   https://blkcipher.xyz/whoop-connected.html
+ * The whoop-connected page reads the hash, stores tokens in localStorage under "whoop_oauth", then clears the hash.
+ *
+ * WHOOP token response (from their token endpoint) includes:
+ *   - access_token (string) – use as Bearer token for API requests
+ *   - refresh_token (string) – present if you requested "offline" scope; use to get new access tokens
+ *   - expires_in (number) – access token lifetime in seconds (e.g. 3600)
+ *   - token_type (string) – "bearer"
+ *   - scope (string) – granted scopes
  */
 
 exports.handler = async (event) => {
@@ -94,12 +106,33 @@ exports.handler = async (event) => {
       };
     }
 
-    // TODO: securely store tokenData.access_token and tokenData.refresh_token
-    // (e.g. in a DB or Netlify env/store keyed by user/session)
     console.log("WHOOP token response (redact in production):", Object.keys(tokenData));
 
     // Clear the state cookie
     const clearCookie = "whoop_oauth_state=; Path=/; HttpOnly; Secure; Max-Age=0";
+
+    // Optional: redirect to app with tokens in the URL fragment (app reads hash and clears it)
+    const successRedirectUrl = process.env.WHOOP_SUCCESS_REDIRECT_URL;
+    if (successRedirectUrl && successRedirectUrl.startsWith("https://")) {
+      const fragment = new URLSearchParams({
+        access_token: tokenData.access_token || "",
+        refresh_token: tokenData.refresh_token || "",
+        expires_in: String(tokenData.expires_in ?? ""),
+        token_type: tokenData.token_type || "bearer",
+        scope: tokenData.scope || "",
+      }).toString();
+      const location = `${successRedirectUrl.replace(/#.*$/, "")}#${fragment}`;
+      return {
+        statusCode: 302,
+        headers: {
+          Location: location,
+          "Set-Cookie": clearCookie,
+          "Cache-Control": "no-store",
+        },
+        body: "",
+      };
+    }
+
     return {
       statusCode: 200,
       headers: {
