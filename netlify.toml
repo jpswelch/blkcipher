@@ -1,7 +1,15 @@
 [build]
   command = "jekyll build"
   publish = "_site"
+  functions = "netlify/functions"
 
 [build.environment]
   JEKYLL_ENV = "production"
   RUBY_VERSION = "3.3.3"
+
+# WHOOP OAuth callback – served by serverless function
+[[redirects]]
+  from = "/auth/whoop/callback"
+  to = "/.netlify/functions/whoop-callback"
+  status = 200
+  force = true
