@@ -5,7 +5,7 @@
 
 [build.environment]
   JEKYLL_ENV = "production"
-  RUBY_VERSION = "3.3.3"
+  RUBY_VERSION = "3.4.0"
 
 # WHOOP OAuth callback – served by serverless function
 [[redirects]]
