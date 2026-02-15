@@ -1,12 +1,12 @@
 ---
 ---
 
-@use "no-style-please" as *;
+// Overrides only — theme styles come from main.css (theme's stylesheet)
 
-// Ensure content is visible over the background
 body {
   background: transparent;
   position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .page-content {
