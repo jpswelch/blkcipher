@@ -35,9 +35,22 @@ exports.handler = async (event) => {
       body: [
         "<p><strong>Missing code in callback.</strong></p>",
         "<p>This URL is for WHOOP to redirect to after you authorize. Do not open it directly.</p>",
-        "<p>Start by clicking your app’s “Connect to WHOOP” (or similar) link, which sends you to WHOOP to sign in; after you approve, WHOOP will redirect here with a <code>code</code> parameter.</p>",
+        "<p>Start from: <a href=\"/auth/whoop/start\">Connect to WHOOP</a>.</p>",
         hasParams ? `<p><small>Received query params: ${Object.keys(params).join(", ")}</small></p>` : "",
       ].join("\n"),
+    };
+  }
+
+  // CSRF check: state from WHOOP must match the cookie set by /auth/whoop/start
+  const stateFromQuery = params.state;
+  const cookieHeader = event.headers.cookie || event.headers.Cookie || "";
+  const stateCookieMatch = cookieHeader.match(/whoop_oauth_state=([^;]+)/);
+  const stateFromCookie = stateCookieMatch ? stateCookieMatch[1].trim() : null;
+  if (!stateFromQuery || !stateFromCookie || stateFromQuery !== stateFromCookie) {
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+      body: "<p><strong>Invalid or missing state.</strong> Please start from <a href=\"/auth/whoop/start\">Connect to WHOOP</a> (do not open the callback URL directly).</p>",
     };
   }
 
@@ -85,9 +98,14 @@ exports.handler = async (event) => {
     // (e.g. in a DB or Netlify env/store keyed by user/session)
     console.log("WHOOP token response (redact in production):", Object.keys(tokenData));
 
+    // Clear the state cookie
+    const clearCookie = "whoop_oauth_state=; Path=/; HttpOnly; Secure; Max-Age=0";
     return {
       statusCode: 200,
-      headers: { "Content-Type": "text/html; charset=utf-8" },
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Set-Cookie": clearCookie,
+      },
       body: "<p>WHOOP connected successfully. You can close this tab.</p>",
     };
   } catch (e) {
