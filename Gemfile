@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
-ruby ">= 3.4.0"
+# Allow 3.3+ for local dev; Netlify uses 3.4 via .ruby-version / netlify.toml
+ruby ">= 3.3.0"
 
 # Ruby 3.4+ removed these from default gems; Jekyll deps need them
 gem "base64"

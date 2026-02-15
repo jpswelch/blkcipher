@@ -2,11 +2,11 @@
 ---
 
 // Overrides only — theme styles come from main.css (theme's stylesheet)
-
+// Keep theme font: explicit monospace stack so it matches no-style-please
 body {
   background: transparent;
   position: relative;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
 .page-content {
